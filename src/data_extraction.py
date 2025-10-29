@@ -11,7 +11,8 @@ def load_data(file_path: str):
     Returns:
         pandas.DataFrame: The loaded data as a DataFrame.
   
-    Raises:
+   
+     Raises:
         FileNotFoundError: If the file is not found at the specified path.
     """
     try:
