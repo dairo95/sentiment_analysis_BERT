@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
 from datasets import Dataset
 
+
 def preprocess_text(text: str) -> str:
     """
     Cleans the input text by lowercasing and removing special characters.
@@ -11,6 +12,7 @@ def preprocess_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r'[^a-z\s]', '', text)
     return text.strip()
+
 
 def preprocess_and_tokenize(df: pd.DataFrame, model_name: str = "bert-base-uncased"):
     """
