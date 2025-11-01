@@ -14,12 +14,14 @@ def preprocess_text(text: str) -> str:
     return text.strip()
 
 
-def preprocess_and_tokenize(df: pd.DataFrame, model_name: str = "bert-base-uncased"):
+def preprocess_and_tokenize(df: pd.DataFrame,
+                            model_name: str = "bert-base-uncased"):
     """
     Cleans, splits, and tokenizes the dataset.
     Args:
         df (pd.DataFrame): DataFrame with 'text' and 'label' columns.
-        model_name (str): The name of the Hugging Face model to use for tokenization.
+        model_name (str): The name of the Hugging Face model to use for
+        tokenization.
     Returns:
         tuple: A tuple containing tokenized train and validation datasets.
     """
@@ -33,19 +35,26 @@ def preprocess_and_tokenize(df: pd.DataFrame, model_name: str = "bert-base-uncas
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     def tokenize_function(examples):
-        return tokenizer(examples["text"], padding="max_length", truncation=True)
+        return tokenizer(examples["text"], padding="max_length",
+                         truncation=True)
 
     # 4. Convert DataFrame to Dataset
     train_dataset = Dataset.from_pandas(train_df)
     val_dataset = Dataset.from_pandas(val_df)
 
     # 5. Tokenize the datasets
-    tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
-    tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
+    tokenized_train_dataset = train_dataset.map(tokenize_function,
+                                                batched=True)
+    tokenized_val_dataset = val_dataset.map(tokenize_function,
+                                            batched=True)
 
     # 6. Set format for PyTorch
-    tokenized_train_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
-    tokenized_val_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    tokenized_train_dataset.set_format(type='torch', columns=['input_ids',
+                                                              'attention_mask',
+                                                              'label'])
+    tokenized_val_dataset.set_format(type='torch', columns=['input_ids',
+                                                            'attention_mask',
+                                                            'label'])
 
     print("✅ Data cleaning, splitting, and tokenization complete.")
     return tokenized_train_dataset, tokenized_val_dataset
