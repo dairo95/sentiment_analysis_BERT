@@ -22,7 +22,3 @@ def load_data(file_path: str):
     except FileNotFoundError:
         print(f"Error: The file was not found at {file_path}")
         raise
-
-
-df = load_data("data/dataset.csv")
-print(df.head())
