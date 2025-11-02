@@ -33,9 +33,9 @@ def compute_metrics(pred):
 def train_model(
     train_dataset,
     val_dataset,
-    model_name: str = "bert-base-uncased",
-    num_epochs: int = 3,
-    batch_size: int = 16,
+    model_name: str = "distilbert-base-uncased", # lighter model for faster training
+    num_epochs: int = 1,
+    batch_size: int = 4,
     learning_rate: float = 2e-5,
 ):
     """
@@ -53,11 +53,11 @@ def train_model(
         num_train_epochs=num_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
+        gradient_accumulation_steps=8,
         learning_rate=learning_rate,
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         logging_strategy="steps",
-        logging_steps=50,
         save_total_limit=2,
         load_best_model_at_end=True,
         metric_for_best_model="accuracy",
@@ -85,3 +85,27 @@ def train_model(
     print("💾 Model saved to models/bert_sentiment")
 
     return model
+
+
+if __name__ == "__main__":
+    from data_extraction import load_data
+    from data_processing import preprocess_and_tokenize
+
+    # 1. Load your dataset
+    df = load_data("data/dataset.csv")  # 🔁 adjust if file is elsewhere
+
+    # 2. Keep only the relevant columns
+    df = df[["content", "score"]].rename(columns={"content": "text", "score": "label"})
+
+    # 3. Convert scores (1–5) to binary labels
+    #    1–2 → negative (0), 4–5 → positive (1), drop 3 (neutral)
+    df = df[df["label"] != 3]  # remove neutral examples
+    df["label"] = df["label"].apply(lambda x: 1 if x > 3 else 0)
+
+    print(df.head())  # optional sanity check
+
+    # 4. Preprocess and tokenize
+    train_dataset, val_dataset = preprocess_and_tokenize(df)
+
+    # 5. Train and save
+    train_model(train_dataset, val_dataset)
