@@ -9,7 +9,7 @@ from transformers import (
 from datasets import Dataset  # If using custom datasets
 
 
-def load_model_and_tokenizer(model_name: str = "bert-base-uncased",
+def load_model_and_tokenizer(model_name: str = "distilbert-base-uncased",
                              num_labels: int = 2):
     """
     Loads a pretrained BERT model and tokenizer for sequence classification.
@@ -33,7 +33,7 @@ def compute_metrics(pred):
 def train_model(
     train_dataset,
     val_dataset,
-    model_name: str = "distilbert-base-uncased", # lighter model for faster training
+    model_name: str = "distilbert-base-uncased",  # lighter model for faster training
     num_epochs: int = 1,
     batch_size: int = 4,
     learning_rate: float = 2e-5,
