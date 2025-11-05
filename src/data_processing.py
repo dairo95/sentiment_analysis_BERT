@@ -15,7 +15,7 @@ def preprocess_text(text: str) -> str:
 
 
 def preprocess_and_tokenize(df: pd.DataFrame,
-                            model_name: str = "bert-base-uncased"):
+                            model_name: str = "distilbert-base-uncased"):
     """
     Cleans, splits, and tokenizes the dataset.
     Args:
