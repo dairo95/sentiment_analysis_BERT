@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from data_processing import preprocess_text  # reuse training preprocessing
+from src.data_processing import preprocess_text  # reuse training preprocessing
 
 MODEL_DIR = "models/bert_sentiment"
 
@@ -58,8 +58,8 @@ def predict_sentiment(texts):
 
 if __name__ == "__main__":
     sample_texts = [
-        "I would recommend this product.",
-        "This is the last time I buy from this store."
+        "This is not a good product.",
+        "I had a terrible experience with this item."
     ]
     predictions = predict_sentiment(sample_texts)
     for pred in predictions:
