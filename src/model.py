@@ -7,6 +7,7 @@ from transformers import (
     TrainingArguments,
 )
 from datasets import Dataset  # If using custom datasets
+from src.data_extraction import load_data
 
 
 def load_model_and_tokenizer(model_name: str = "distilbert-base-uncased",
@@ -88,8 +89,8 @@ def train_model(
 
 
 if __name__ == "__main__":
-    from data_extraction import load_data
-    from data_processing import preprocess_and_tokenize
+    from src.data_extraction import load_data
+    from src.data_processing import preprocess_and_tokenize
 
     # 1. Load your dataset
     df = load_data("data/dataset.csv")  # 🔁 adjust if file is elsewhere
