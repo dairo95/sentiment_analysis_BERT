@@ -40,7 +40,7 @@ def test_model_forward_pass():
     assert logits is not None, "Model did not return logits."
     assert len(logits.shape) == 2, "Logits should be a 2D tensor."
     assert logits.shape[0] == len(dummy_texts), "Batch size mismatch in logits."
-    assert logits.shape[1] == model.config.num_labels, "Number of labels mismatch in logits."  
+    assert logits.shape[1] == model.config.num_labels, "Number of labels mismatch in logits."
 
 
 @patch("src.model.Trainer")
