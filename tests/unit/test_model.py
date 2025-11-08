@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from unittest.mock import patch, MagicMock
-import numpy as np 
+import numpy as np
 from src.model import train_model, compute_metrics, load_model_and_tokenizer
 import runpy
 import pandas as pd
