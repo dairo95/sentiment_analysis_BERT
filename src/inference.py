@@ -1,56 +1,53 @@
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from src.data_processing import preprocess_text  # reuse training preprocessing
+from src.data_processing import preprocess_text
 
-MODEL_DIR = "bert-base-uncased"  # Public Hugging Face model
+MODEL_DIR = "models/bert_sentiment"
 
+# Auto device detection
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Global variables for caching (Lazy Loading)
+_model = None
+_tokenizer = None
 
 
 def load_trained_model(model_dir: str = MODEL_DIR):
     """
-    Load model from local directory or fallback to public Hugging Face model.
+    Loads the model and tokenizer from disk.
+    This function performs the heavy lifting and I/O.
     """
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_dir, local_files_only=True
-        )
-        model = AutoModelForSequenceClassification.from_pretrained(
-            model_dir, local_files_only=True
-        )
-        print(f"✓ Loaded model from local: {model_dir}")
-    except (OSError, FileNotFoundError):
-        print(f"⚠ Local model not found. Using public model: {model_dir}")
-        tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-  
+    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     model.eval()
     model.to(device)
     return model, tokenizer
 
 
-model = None
-tokenizer = None
-
-
 def get_model_and_tokenizer():
-    """Lazy load model and tokenizer on first use."""
-
-    global model, tokenizer
-    if model is None or tokenizer is None:
-        model, tokenizer = load_trained_model(MODEL_DIR)
-    return model, tokenizer
+    """
+    Singleton accessor.
+    Only loads the model the first time it is called.
+    Prevents global scope execution crashes.
+    """
+    global _model, _tokenizer
+    if _model is None or _tokenizer is None:
+        _model, _tokenizer = load_trained_model(MODEL_DIR)
+    return _model, _tokenizer
 
 
 def predict_sentiment(texts):
-    # Lazy load model and tokenizer
-    model, tokenizer = get_model_and_tokenizer()
     if isinstance(texts, str):
         texts = [texts]
 
     # Clean
     texts = [preprocess_text(t) for t in texts]
+
+    # --- LAZY LOAD START ---
+    # We call the getter here instead of using global variables directly.
+    model, tokenizer = get_model_and_tokenizer()
+    # --- LAZY LOAD END ---
 
     # Tokenize
     inputs = tokenizer(
@@ -88,10 +85,5 @@ if __name__ == "__main__":
     predictions = predict_sentiment(sample_texts)
     for pred in predictions:
         print(f"📝 Text: {pred['text']}")
-        sentiment = pred['label']
-        confidence = pred['confidence']
-        print(
-            f"➡  Predicted Sentiment: {sentiment} "
-            f"(Confidence: {confidence})"
-        )
+        print(f"➡  Predicted Sentiment: {pred['label']} (Confidence: {pred['confidence']})")
         print("-" * 60)
