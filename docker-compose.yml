@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  sentiment-api:
+    build: .
+    container_name: sentiment-analysis-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./src:/app/src
+    command: python src/main.py
