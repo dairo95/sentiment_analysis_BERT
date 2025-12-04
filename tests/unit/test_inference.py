@@ -8,18 +8,28 @@ def test_predict_sentiment():
     # Example input
     sample_texts = ["This app is great!", "I hate this app."]
 
-    # Mock tokenizer outputs
+    # Mock tokenizer outputs - return proper PyTorch tensors
     mock_tokenizer = MagicMock()
     mock_tokenizer.return_value = {
-        "input_ids": [["id1"], ["id2"]],
-        "attention_mask": [[1], [1]],
+        "input_ids": torch.tensor([[101, 102, 103], [104, 105, 106]]),
+        "attention_mask": torch.tensor([[1, 1, 1], [1, 1, 1]]),
     }
 
     # Mock model output logits
-    mock_model = MagicMock()
-    mock_model.return_value.logits = [[0.1, 0.9], [0.8, 0.2]]
+    mock_model = MagicMock()  # THIS LINE WAS MISSING!
+    # Create proper tensor
+    mock_logits = torch.tensor([[0.1, 0.9], [0.8, 0.2]])
+    mock_logits.requires_grad = False
+    
+    # Mock model output
+    mock_model_output = MagicMock()
+    mock_model_output.logits = mock_logits
+    mock_model.return_value = mock_model_output
 
-    with patch("src.inference.load_trained_model", return_value=(mock_model, mock_tokenizer)):
+    with patch(
+        "src.inference.get_model_and_tokenizer",
+        return_value=(mock_model, mock_tokenizer),
+    ):
         predictions = predict_sentiment(sample_texts)
 
     assert len(predictions) == 2
@@ -64,4 +74,7 @@ def test_inference_main(mock_auto_tokenizer, mock_auto_model, mock_preprocess, m
     
     # Check if preprocess_text was called
     mock_preprocess.assert_any_call("This is not a good product.")
-    mock_preprocess.assert_any_call("I had a terrible experience with this item.")
+    mock_preprocess.assert_any_call(
+        "I had a terrible experience with this item."
+    )
+    
