@@ -1,0 +1,40 @@
+name: Build and Publish Docker Image
+
+on:
+  # Trigger: Run automatically when code is pushed to the main branch
+  push:
+    branches: [ "main" ]
+  
+  # Trigger: Allow manual execution from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Docker Buildx (required for advanced building features)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login to Docker Hub using GitHub Secrets
+      # You must configure these secrets in your repository settings!
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build the image and push it to Docker Hub
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Tag the image with 'latest' and the specific commit SHA for versioning
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis:latest
+            ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis:${{ github.sha }}
