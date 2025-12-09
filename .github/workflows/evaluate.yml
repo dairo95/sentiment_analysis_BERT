@@ -1,0 +1,46 @@
+name: Model Evaluation
+
+on:
+  # Trigger 1: Run specifically when the 'Run Tests' workflow completes successfully
+  workflow_run:
+    workflows: ["Run Tests"]  # Make sure this matches the name in test.yml
+    types:
+      - completed
+  
+  # Trigger 2: Manual trigger (useful for debugging without waiting for tests)
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow (Tests) actually succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install scikit-learn pandas  # Ensure evaluation libs are present
+
+      # We need the trained model. In a real MLOps pipeline, I would download it 
+      # from DVC or an artifact. For this project, if the model is committed to git, 
+      # it's already here. If not, I might need a step to download it.
+      
+      - name: Run Evaluation Script
+        run: python src/evaluate.py
+
+      - name: Upload Metrics Artifact
+        # This satisfies the requirement: "Stores performance metrics as artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-metrics
+          path: metrics.json
