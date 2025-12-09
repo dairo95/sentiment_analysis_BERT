@@ -2,9 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from unittest.mock import patch, MagicMock
 import numpy as np
-from src.model import train_model, compute_metrics, load_model_and_tokenizer
-import runpy
-import pandas as pd
+from src.model import train_model, compute_metrics
 
 
 @patch("transformers.AutoModelForSequenceClassification.from_pretrained")
@@ -20,25 +18,25 @@ def test_model_forward_pass(mock_tokenizer_cls, mock_model_cls):
     # The tokenizer call should return a dict of tensors
     # We mock input_ids and attention_mask to simulate batch_size=2
     mock_tokenizer_instance.return_value = {
-        "input_ids": torch.tensor([[101, 2023, 2003], [101, 1045, 2066]]), 
+        "input_ids": torch.tensor([[101, 2023, 2003], [101, 1045, 2066]]),
         "attention_mask": torch.tensor([[1, 1, 1], [1, 1, 1]])
     }
     mock_tokenizer_cls.return_value = mock_tokenizer_instance
 
     # 2. Setup Model Mock
     mock_model_instance = MagicMock()
-    
+
     # Configure model.config.num_labels for the assertion
     mock_config = MagicMock()
     mock_config.num_labels = 2
     mock_model_instance.config = mock_config
-  
+
     # Configure model output (logits)
     # We return a tensor of shape (2, 2) matching batch_size=2 and num_labels=2
     mock_outputs = MagicMock()
     mock_outputs.logits = torch.tensor([[0.8, 0.2], [0.1, 0.9]])
     mock_model_instance.return_value = mock_outputs
-    
+
     # Connect the instance to the class factory mock
     mock_model_cls.return_value = mock_model_instance
 

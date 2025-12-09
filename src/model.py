@@ -6,8 +6,6 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
-from datasets import Dataset  # If using custom datasets
-from src.data_extraction import load_data
 
 
 def load_model_and_tokenizer(model_name: str = "distilbert-base-uncased",
@@ -16,8 +14,9 @@ def load_model_and_tokenizer(model_name: str = "distilbert-base-uncased",
     Loads a pretrained BERT model and tokenizer for sequence classification.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name,
-                                                               num_labels=num_labels)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_name,
+        num_labels=num_labels)
     return model, tokenizer
 
 
@@ -34,7 +33,7 @@ def compute_metrics(pred):
 def train_model(
     train_dataset,
     val_dataset,
-    model_name: str = "distilbert-base-uncased",  # lighter model for faster training
+    model_name: str = "distilbert-base-uncased",  # lighter model
     num_epochs: int = 1,
     batch_size: int = 4,
     learning_rate: float = 2e-5,
@@ -96,7 +95,9 @@ if __name__ == "__main__":
     df = load_data("data/dataset.csv")  # 🔁 adjust if file is elsewhere
 
     # 2. Keep only the relevant columns
-    df = df[["content", "score"]].rename(columns={"content": "text", "score": "label"})
+    df = df[["content", "score"]].rename(columns={
+        "content": "text",
+        "score": "label"})
 
     # 3. Convert scores (1–5) to binary labels
     #    1–2 → negative (0), 4–5 → positive (1), drop 3 (neutral)

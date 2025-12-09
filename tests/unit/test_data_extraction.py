@@ -2,7 +2,6 @@
 
 import pytest
 import pandas as pd
-from pathlib import Path
 
 # import the function from your code
 from src.data_extraction import load_data

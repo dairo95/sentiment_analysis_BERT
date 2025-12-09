@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from src.data_processing import preprocess_text, preprocess_and_tokenize
+from src.data_processing import preprocess_and_tokenize
 from datasets import Dataset
 
 
