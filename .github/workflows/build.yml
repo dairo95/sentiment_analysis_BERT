@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   # Trigger: Run automatically when code is pushed to the main branch
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   
   # Trigger: Allow manual execution from the Actions tab
   workflow_dispatch:
